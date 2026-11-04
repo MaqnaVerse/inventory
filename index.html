@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>MAQNA VERSE · Inventory Hub</title>
+  <meta name="description" content="Sistem inventory MAQNA VERSE — Broadcast, Studio & Warehouse." />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+
+  <!-- Rasa macam app bila "Add to Home Screen" (iPhone & Android) -->
+  <meta name="theme-color" content="#050505" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MAQNA INV" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- Preview bila link dikongsi di WhatsApp / Telegram -->
+  <meta property="og:title" content="MAQNA VERSE · Inventory Hub" />
+  <meta property="og:description" content="Broadcast · Studio · Warehouse" />
+  <meta property="og:image" content="icons/icon-512.png" />
+
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #050505; overflow: hidden; }
+    .iframe-container { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+    iframe { display: block; width: 100%; height: 100%; border: none; opacity: 0; transition: opacity .4s ease; }
+    iframe.ready { opacity: 1; }
+
+    /* Splash semasa Apps Script sedang dimuatkan (biasanya 2–4 saat) */
+    .splash { position: fixed; inset: 0; display: grid; place-items: center; background:
+      radial-gradient(420px 320px at 20% 20%, rgba(168,85,247,.18), transparent 70%),
+      radial-gradient(420px 320px at 85% 30%, rgba(239,68,68,.14), transparent 70%),
+      radial-gradient(480px 340px at 55% 100%, rgba(250,204,21,.10), transparent 70%), #050505;
+      transition: opacity .5s ease; z-index: 2; }
+    .splash.hide { opacity: 0; pointer-events: none; }
+    .splash div { text-align: center; }
+    .splash img { width: 220px; max-width: 60vw; animation: breathe 1.8s ease-in-out infinite; }
+    .splash p { margin-top: 22px; font: 600 11px/1 ui-monospace, Menlo, monospace; letter-spacing: .32em; color: #6b6b76; }
+    .bar { width: 160px; height: 3px; margin: 16px auto 0; border-radius: 3px; background: #1a1a1f; overflow: hidden; }
+    .bar i { display: block; width: 40%; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #a855f7, #ef4444, #facc15); animation: slide 1.2s ease-in-out infinite; }
+    @keyframes breathe { 50% { transform: scale(.96); opacity: .8; } }
+    @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+  </style>
+</head>
+<body>
+  <div class="splash" id="splash"><div><img src="icons/logo.svg" alt="MAQNA VERSE"><p>INVENTORY HUB</p><div class="bar"><i></i></div></div></div>
+
+  <div class="iframe-container">
+    <iframe
+      id="app"
+      src="PASTE_URL_WEB_APP_DI_SINI"
+      title="MAQNA Inventory Hub"
+      allow="fullscreen; clipboard-write">
+    </iframe>
+  </div>
+
+  <!--
+    MAQNA Inventory — jambatan storan sesi
+    App berjalan dalam iframe domain Google. iPhone (Safari / Home Screen) dan pelayar yang sekat
+    third-party storage tidak benarkan iframe simpan data, jadi login hilang bila app ditutup.
+    Skrip ini simpan token sesi pada halaman GitHub ini (storan kekal).
+    Hanya menerima mesej daripada app Apps Script (…-script.googleusercontent.com).
+  -->
+  <script>
+  (function () {
+    var PREFIX = 'maqna_inv_';
+    var FROM = /^https:\/\/[a-z0-9-]+-script\.googleusercontent\.com$/;
+    var frame = document.getElementById('app'), splash = document.getElementById('splash');
+
+    function ready() { frame.classList.add('ready'); splash.classList.add('hide'); }
+    frame.addEventListener('load', function () { setTimeout(ready, 600); });
+    setTimeout(ready, 12000); // jaga-jaga
+
+    window.addEventListener('message', function (e) {
+      var d = e.data;
+      if (!FROM.test(e.origin) || !d || d.app !== 'maqna-inv' || !e.source) return;
+      if (d.op === 'ready') { ready(); return; }
+      if (['get', 'set', 'del'].indexOf(d.op) < 0 || !/^[a-z_]{1,20}$/.test(String(d.key))) return;
+      var out = { app: 'maqna-inv', id: d.id };
+      try {
+        if (d.op === 'get') out.value = localStorage.getItem(PREFIX + d.key);
+        else if (d.op === 'set') localStorage.setItem(PREFIX + d.key, String(d.value).slice(0, 4000));
+        else localStorage.removeItem(PREFIX + d.key);
+      } catch (err) { out.error = String(err); }
+      e.source.postMessage(out, e.origin);
+    });
+
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (err) { }
+    if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { }); });
+  })();
+  </script>
+</body>
+</html>
