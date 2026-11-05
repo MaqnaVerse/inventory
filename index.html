@@ -25,7 +25,8 @@
 
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #050505; overflow: hidden; }
-    .iframe-container { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+    .iframe-container { position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 100%; height: var(--vh, 100%); overflow: hidden; }
+    #sa { position: fixed; top: 0; left: 0; width: 0; visibility: hidden; pointer-events: none; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
     iframe { display: block; width: 100%; height: 100%; border: none; opacity: 0; transition: opacity .4s ease; }
     iframe.ready { opacity: 1; }
 
@@ -59,6 +60,7 @@
   <div class="cam" id="cam"><div class="box"><video id="camV" playsinline muted autoplay></video><div class="fr"></div></div><p id="camMsg">Halakan kamera ke label QR</p><button id="camX">Batal</button></div>
 
   <div class="iframe-container">
+    <div id="sa"></div>
     <iframe id="app" title="MAQNA Inventory Hub" allow="fullscreen; clipboard-write; camera"></iframe>
   </div>
 
@@ -91,10 +93,34 @@
     frame.addEventListener('load', function () { setTimeout(ready, 600); });
     setTimeout(ready, 8000); // jaga-jaga
 
+    /* ---- Safe area iPhone (notch / Dynamic Island / home bar) ----
+       iframe tak dapat env(safe-area-inset-*), jadi wrapper ukur & hantar ke app.
+       iOS "Add to Home Screen": 100% tinggi kadang pendek → guna tinggi skrin penuh. */
+    var peer = null;
+    function insets() {
+      var cs = getComputedStyle(document.getElementById('sa'));
+      return { top: parseFloat(cs.paddingTop) || 0, bottom: parseFloat(cs.paddingBottom) || 0 };
+    }
+    function fit() {
+      var box = document.querySelector('.iframe-container'), h = window.innerHeight;
+      if (navigator.standalone === true) {
+        var land = window.matchMedia('(orientation: landscape)').matches;
+        var sh = land ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+        if (sh > h) h = sh;
+      }
+      box.style.setProperty('--vh', h + 'px');
+      if (peer) try { peer.src.postMessage({ app: 'maqna-inv', op: 'insets', value: insets() }, peer.origin); } catch (err) {}
+    }
+    fit();
+    window.addEventListener('resize', function () { setTimeout(fit, 60); });
+    window.addEventListener('orientationchange', function () { setTimeout(fit, 300); });
+
     window.addEventListener('message', function (e) {
       var d = e.data;
       if (!FROM.test(e.origin) || !d || d.app !== 'maqna-inv' || !e.source) return;
+      peer = { src: e.source, origin: e.origin };
       if (d.op === 'ready') { ready(); return; }
+      if (d.op === 'insets') { e.source.postMessage({ app: 'maqna-inv', id: d.id, value: insets() }, e.origin); return; }
       if (d.op === 'scan') { camStart(e.source, e.origin, d.id); return; }
       if (d.op === 'scanCancel') { camStop(); return; }
       if (['get', 'set', 'del'].indexOf(d.op) < 0 || !/^[a-z_]{1,20}$/.test(String(d.key))) return;
