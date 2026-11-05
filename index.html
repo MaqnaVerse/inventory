@@ -43,10 +43,20 @@
     .bar i { display: block; width: 40%; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #a855f7, #ef4444, #facc15); animation: slide 1.2s ease-in-out infinite; }
     @keyframes breathe { 50% { transform: scale(.96); opacity: .8; } }
     @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+    /* Kamera scan (jika kamera disekat dalam iframe Google) */
+    .cam { position: fixed; inset: 0; z-index: 9; background: rgba(0,0,0,.92); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; font-family: system-ui, sans-serif; color: #fff; }
+    .cam.on { display: flex; }
+    .cam .box { position: relative; width: min(92vw, 440px); aspect-ratio: 1/1; border-radius: 20px; overflow: hidden; background: #000; border: 1px solid #333; }
+    .cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cam .fr { position: absolute; inset: 16%; border: 3px solid #a855f7; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(0,0,0,.35); }
+    .cam p { margin: 0; color: #a1a1aa; font-size: 13px; text-align: center; }
+    .cam button { background: #fff; color: #0a0a0a; border: 0; padding: 12px 26px; border-radius: 999px; font-weight: 700; font-size: 14px; }
   </style>
 </head>
 <body>
   <div class="splash" id="splash"><div><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9Ii0zMCAtMjAgMjYzNiA5ODAiIHdpZHRoPSIyNjM2IiBoZWlnaHQ9Ijk4MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJNQVFOQSBWRVJTRSI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJtciIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgxPSIwIiB5MT0iMCIgeDI9IjI1NzYiIHkyPSI2MDAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGNEQ1RiI+PC9zdG9wPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0UzMzM0QyI+PC9zdG9wPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJtYiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgxPSI5NTAiIHkxPSIwIiB4Mj0iMTUzMiIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzVFOEZFRSI+PC9zdG9wPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzc0NzBFQyI+PC9zdG9wPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwb2x5Z29uIHBvaW50cz0iMCw0OCAyNTAsMjM5IDUwMCw0OCA1MDAsNTQ3IDQxMSw1NDcgNDExLDIzMCAyNTAsMzUyIDkwLDIzMCA5MCw1NDcgMCw1NDciIGZpbGw9InVybCgjbXIpIj48L3BvbHlnb24+PHBvbHlnb24gcG9pbnRzPSI1MDksNTQ3IDc2Myw0OCAxMDE4LDU0NyA5MTgsNTQ3IDc2MywyNDUgNjA4LDU0NyIgZmlsbD0idXJsKCNtcikiPjwvcG9seWdvbj48cG9seWdvbiBwb2ludHM9IjE1NTcsNTAgMTk2OCwzNjUgMTk2OCw0NyAyMDU2LDQ4IDIwNTYsNTQ3IDE2NDYsMjMyIDE2NDYsNTQ4IDE1NTcsNTQ4IiBmaWxsPSJ1cmwoI21yKSI+PC9wb2x5Z29uPjxwb2x5Z29uIHBvaW50cz0iMjA2NSw1NDcgMjMyMCw0OCAyNTc1LDU0NyAyNDc1LDU0NyAyMzIwLDI0NSAyMTY1LDU0NyIgZmlsbD0idXJsKCNtcikiPjwvcG9seWdvbj48cGF0aCBkPSJNMTI0MSA1MzggQTI0NSAyNDUgMCAxIDEgMTQ2OCAzODYiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNtYikiIHN0cm9rZS13aWR0aD0iOTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PC9wYXRoPjxwYXRoIGQ9Ik0xMjc0IDM0MyBMMTQyMSA1NjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNtYikiIHN0cm9rZS13aWR0aD0iOTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PC9wYXRoPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU0MS4wIDczMCkgc2NhbGUoMi4wKSI+PHBhdGggZD0iTTQ1IDAgTDAgNTAgTDQ1IDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkY0RDVGIiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvcGF0aD48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzIxLjAgNzMwKSBzY2FsZSgyLjApIj48cGF0aCBkPSJNMCAwIEw0MCAxMDAgTDgwIDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg2QThGNSIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L3BhdGg+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDkzNy4wIDczMCkgc2NhbGUoMi4wKSI+PHBhdGggZD0iTTgwIDAgSDIyIEEyMiAyMiAwIDAgMCAwIDIyIFY3OCBBMjIgMjIgMCAwIDAgMjIgMTAwIEg4MCBNMCA1MCBINjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg2QThGNSIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L3BhdGg+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDExNTMuMCA3MzApIHNjYWxlKDIuMCkiPjxwYXRoIGQ9Ik0wIDEwMCBWMCBINTUgQTI1IDI1IDAgMCAxIDU1IDUwIEgwIE00OCA1MCBMODAgMTAwIiBmaWxsPSJub25lIiBzdHJva2U9IiM4NkE4RjUiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PC9wYXRoPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMzY5LjAgNzMwKSBzY2FsZSgyLjApIj48cGF0aCBkPSJNODAgMCBIMjUgQTI1IDI1IDAgMCAwIDI1IDUwIEg1NSBBMjUgMjUgMCAwIDEgNTUgMTAwIEgwIiBmaWxsPSJub25lIiBzdHJva2U9IiM4NkE4RjUiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PC9wYXRoPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTg1LjAgNzMwKSBzY2FsZSgyLjApIj48cGF0aCBkPSJNODAgMCBIMjIgQTIyIDIyIDAgMCAwIDAgMjIgVjc4IEEyMiAyMiAwIDAgMCAyMiAxMDAgSDgwIE0wIDUwIEg2OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODZBOEY1IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvcGF0aD48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTgzNS4wIDczMCkgc2NhbGUoMi4wKSI+PHBhdGggZD0iTTUgMTAwIEw0MCAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNGRjRENUYiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PC9wYXRoPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxOTQ1LjAgNzMwKSBzY2FsZSgyLjApIj48cGF0aCBkPSJNMCAwIEw0NSA1MCBMMCAxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGNEQ1RiIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L3BhdGg+PC9nPjxyZWN0IHg9IjIwODUuMCIgeT0iNzMwIiB3aWR0aD0iNzAiIGhlaWdodD0iMjAwIiByeD0iOCIgZmlsbD0iI0ZGNEQ1RiI+PC9yZWN0Pjwvc3ZnPg==" alt="MAQNA VERSE"><p>INVENTORY HUB</p><div class="bar"><i></i></div></div></div>
+
+  <div class="cam" id="cam"><div class="box"><video id="camV" playsinline muted autoplay></video><div class="fr"></div></div><p id="camMsg">Halakan kamera ke label QR</p><button id="camX">Batal</button></div>
 
   <div class="iframe-container">
     <iframe id="app" title="MAQNA Inventory Hub" allow="fullscreen; clipboard-write; camera"></iframe>
@@ -85,6 +95,8 @@
       var d = e.data;
       if (!FROM.test(e.origin) || !d || d.app !== 'maqna-inv' || !e.source) return;
       if (d.op === 'ready') { ready(); return; }
+      if (d.op === 'scan') { camStart(e.source, e.origin, d.id); return; }
+      if (d.op === 'scanCancel') { camStop(); return; }
       if (['get', 'set', 'del'].indexOf(d.op) < 0 || !/^[a-z_]{1,20}$/.test(String(d.key))) return;
       var out = { app: 'maqna-inv', id: d.id };
       try {
@@ -94,6 +106,39 @@
       } catch (err) { out.error = String(err); }
       e.source.postMessage(out, e.origin);
     });
+
+    /* ---- Kamera scan QR untuk app (BarcodeDetector / jsQR) ---- */
+    var cam = { stream: null, t: null, det: null, cv: null, reply: null };
+    function load(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+    function camStop() { clearTimeout(cam.t); if (cam.stream) cam.stream.getTracks().forEach(function (t) { t.stop(); }); cam.stream = null; document.getElementById('cam').classList.remove('on'); }
+    function camReply(v) { var r = cam.reply; cam.reply = null; camStop(); if (r) r.src.postMessage({ app: 'maqna-inv', id: r.id, value: v }, r.origin); }
+    document.getElementById('camX').onclick = function () { camReply('__cancel__'); };
+    async function camStart(src, origin, id) {
+      if (cam.reply) camReply('__cancel__');
+      cam.reply = { src: src, origin: origin, id: id };
+      document.getElementById('cam').classList.add('on'); document.getElementById('camMsg').textContent = 'Menghidupkan kamera…';
+      try {
+        cam.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+        var v = document.getElementById('camV'); v.srcObject = cam.stream; await v.play();
+        if ('BarcodeDetector' in window) { try { var f = await BarcodeDetector.getSupportedFormats(); if (f.indexOf('qr_code') > -1) cam.det = new BarcodeDetector({ formats: ['qr_code'] }); } catch (x) { } }
+        if (!cam.det && !window.jsQR) await load('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js');
+        document.getElementById('camMsg').textContent = 'Halakan kamera ke label QR';
+        (function loop() { cam.t = setTimeout(async function () {
+          if (!cam.stream) return;
+          try {
+            var txt = null;
+            if (v.readyState >= 2 && v.videoWidth) {
+              if (cam.det) { var r = await cam.det.detect(v); if (r && r[0]) txt = r[0].rawValue; }
+              else if (window.jsQR) { var c = cam.cv || (cam.cv = document.createElement('canvas')), w = Math.min(720, v.videoWidth), h = Math.round(v.videoHeight * w / v.videoWidth);
+                c.width = w; c.height = h; var g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(v, 0, 0, w, h);
+                var q = jsQR(g.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' }); if (q) txt = q.data; }
+            }
+            if (txt) { try { navigator.vibrate && navigator.vibrate(60); } catch (x) { } return camReply(txt); }
+          } catch (x) { }
+          loop();
+        }, 160); })();
+      } catch (err) { camReply('__nocam__'); }
+    }
 
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (err) { }
     if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { }); });
