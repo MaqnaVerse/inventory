@@ -1,6 +1,6 @@
 /* MAQNA Inventory — service worker
    Cache shell sahaja (logo, ikon, halaman offline). Data sentiasa live dari Google. */
-const CACHE = 'maqna-inv-v1';
+const CACHE = 'maqna-inv-v2';
 const SHELL = ['./', 'index.html', 'offline.html', 'manifest.webmanifest',
   'icons/logo.svg', 'icons/favicon-32.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
